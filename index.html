@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSC - Visual Style Compiler</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #1a1a1a;
+            --surface-elevated: #242424;
+            --text: #e8e8e8;
+            --text-secondary: #a0a0a0;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #333333;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-bottom: 120px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lock-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            transition: var(--transition);
+        }
+
+        .lock-indicator.locked {
+            background: var(--accent);
+        }
+
+        .collapse-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .collapse-icon.open {
+            transform: rotate(180deg);
+        }
+
+        .card-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+
+        .card-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .lock-toggle {
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .lock-toggle:hover {
+            background: var(--border);
+        }
+
+        .lock-toggle.locked {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--surface-elevated);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .profile-selector {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .output-section {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .output-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .char-count {
+            color: var(--accent);
+        }
+
+        .output-text {
+            background: var(--surface);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+
+        .sticky-footer .container {
+            display: flex;
+            gap: 10px;
+            padding: 0 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .sticky-footer .btn {
+            flex: 1;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--surface-elevated);
+            color: var(--text);
+            padding: 16px 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: var(--transition);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .toast.success {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .toast.error {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .model-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .model-option {
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--surface-elevated);
+        }
+
+        .model-option:hover {
+            border-color: var(--accent);
+        }
+
+        .model-option.active {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .scene-zone {
+            background: rgba(139, 92, 246, 0.05);
+            border: 2px dashed rgba(139, 92, 246, 0.3);
+        }
+
+        .import-export {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .profile-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .sticky-footer .container {
+                flex-direction: column;
+            }
+
+            .model-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .debug-info {
+            background: var(--surface-elevated);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>VSC</h1>
+        <p class="tagline">Lock your visual DNA. Inject infinite scenes.</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Profile Management</h2>
+            </div>
+            <div class="card-content">
+                <div class="profile-selector">
+                    <select id="profileSelect" class="profile-select">
+                        <option value="">Select Profile...</option>
+                    </select>
+                    <button class="btn btn-secondary" id="btnNew">New</button>
+                    <button class="btn btn-secondary" id="btnDuplicate">Duplicate</button>
+                    <button class="btn btn-danger" id="btnDelete">Delete</button>
+                </div>
+                <div class="form-group">
+                    <label>Profile Name</label>
+                    <input type="text" id="profileName" placeholder="e.g., Cinematic Cyberpunk">
+                </div>
+                <div class="form-group">
+                    <label>Creative Intent</label>
+                    <textarea id="creativeIntent" placeholder="Describe the core artistic vision of this style..."></textarea>
+                </div>
+                <div class="import-export">
+                    <button class="btn btn-secondary" id="btnExport">Export JSON</button>
+                    <button class="btn btn-secondary" id="btnImportTrigger">Import JSON</button>
+                    <input type="file" id="importFile" accept=".json">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Target Model</h2>
+            </div>
+            <div class="card-content">
+                <div class="model-selector">
+                    <div class="model-option" data-model="dalle">
+                        <div>DALL·E 3</div>
+                        <div class="help-text">Natural language</div>
+                    </div>
+                    <div class="model-option" data-model="midjourney">
+                        <div>Midjourney</div>
+                        <div class="help-text">Tag-based</div>
+                    </div>
+                    <div class="model-option" data-model="stable">
+                        <div>Stable Diffusion</div>
+                        <div class="help-text">Weighted tags</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="styleHeader">
+                <h2 class="card-title">
+                    <span class="lock-indicator" id="styleGlobalLock">🔓</span>
+                    Style DNA (The Profile)
+                </h2>
+                <span class="collapse-icon open">▼</span>
+            </div>
+            <div class="card-content" id="styleContent">
+                <div class="form-group">
+                    <label>
+                        Medium
+                        <span class="lock-toggle" data-field="medium">🔓 Unlocked</span>
+                    </label>
+                    <input type="text" id="medium" placeholder="e.g., oil painting, 3D render, photography">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Aesthetic Movement
+                        <span class="lock-toggle" data-field="aesthetic">🔓 Unlocked</span>
+                    </label>
+                    <input type="text" id="aesthetic" placeholder="e.g., cyberpunk, art nouveau, brutalism">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Color Palette
+                        <span class="lock-toggle" data-field="palette">🔓 Unlocked</span>
+                    </label>
+                    <input type="text" id="palette" placeholder="e.g., muted earth tones, high contrast neon pink and cyan">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Composition Rules
+                        <span class="lock-toggle" data-field="composition">🔓 Unlocked</span>
+                    </label>
+                    <input type="text" id="composition" placeholder="e.g., rule of thirds, symmetrical, dynamic diagonal">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Camera / Perspective
+                        <span class="lock-toggle" data-field="camera">🔓 Unlocked</span>
+                    </label>
+                    <input type="text" id="camera" placeholder="e.g., 35mm lens, wide angle, bird's eye view">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Lighting
+                        <span class="lock-toggle" data-field="lighting">🔓 Unlocked</span>
+                    </label>
+                    <input type="text" id="lighting" placeholder="e.g., soft golden hour, harsh rim light, volumetric fog">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Texture / Surface Quality
+                        <span class="lock-toggle" data-field="texture">🔓 Unlocked</span>
+                    </label>
+                    <input type="text" id="texture" placeholder="e.g., film grain, cracked oil paint, smooth CGI">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Exclusions (Negative Prompt)
+                        <span class="lock-toggle" data-field="exclusions">🔓 Unlocked</span>
+                    </label>
+                    <textarea id="exclusions" placeholder="e.g., daylight, natural nature, over-sharpened"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Quality Terms</label>
+                    <input type="text" id="qualityTerms" placeholder="e.g., masterpiece, ultra detailed, 8k resolution">
+                </div>
+            </div>
+        </div>
+
+        <div class="card scene-zone">
+            <div class="card-header" id="sceneHeader">
+                <h2 class="card-title">🎬 Scene Payload (The Variable)</h2>
+                <span class="collapse-icon open">▼</span>
+            </div>
+            <div class="card-content" id="sceneContent">
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" id="subject" placeholder="e.g., a lone astronaut, a vintage motorcycle">
+                </div>
+
+                <div class="form-group">
+                    <label>Action</label>
+                    <input type="text" id="action" placeholder="e.g., walking through, hovering above">
+                </div>
+
+                <div class="form-group">
+                    <label>Environment</label>
+                    <input type="text" id="environment" placeholder="e.g., a neon-lit alley, a misty forest">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📝 Generated Output</h2>
+            </div>
+            <div class="card-content">
+                <div class="output-section">
+                    <div class="output-label">
+                        <span>Positive Prompt</span>
+                        <span class="char-count" id="charCount">0 chars</span>
+                    </div>
+                    <div class="output-text" id="outputPrompt">Click "Generate Prompt" to compile...</div>
+                </div>
+
+                <div class="output-section" id="negativeSection" style="display: none; margin-top: 15px;">
+                    <div class="output-label">
+                        <span>Negative Prompt</span>
+                        <span class="char-count" id="negativeCharCount">0 chars</span>
+                    </div>
+                    <div class="output-text" id="negativePrompt"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sticky-footer">
+        <div class="container">
+            <button class="btn btn-primary" id="btnGenerate">⚡ Generate Prompt</button>
+            <button class="btn btn-secondary" id="btnCopy">📋 Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        console.log('🚀 StyleForge initializing...');
+
+        const AppState = {
+            profiles: [],
+            activeProfileId: null,
+            selectedModel: 'dalle',
+            scene: {
+                subject: '',
+                action: '',
+                environment: ''
+            },
+            generatedPrompt: '',
+            generatedNegative: '',
+            storageAvailable: true
+        };
+
+        const StorageService = {
+            STORAGE_KEY: 'styleforge_profiles',
+            
+            init() {
+                console.log('📦 Initializing storage...');
+                
+                try {
+                    const testKey = '__storage_test__';
+                    localStorage.setItem(testKey, 'test');
+                    localStorage.removeItem(testKey);
+                    AppState.storageAvailable = true;
+                } catch (e) {
+                    console.warn('⚠️ localStorage not available, running in memory mode:', e);
+                    AppState.storageAvailable = false;
+                }
+
+                try {
+                    if (AppState.storageAvailable) {
+                        const stored = localStorage.getItem(this.STORAGE_KEY);
+                        console.log('📥 Retrieved from storage:', stored ? 'Data found' : 'No data');
+
+                        if (stored) {
+                            AppState.profiles = JSON.parse(stored);
+                        }
+                    }
+
+                    if (!Array.isArray(AppState.profiles)) {
+                        console.warn('⚠️ Invalid storage format, resetting...');
+                        AppState.profiles = [];
+                    }
+
+                } catch (e) {
+                    console.warn('⚠️ Storage failed, resetting:', e);
+                    AppState.profiles = [];
+                }
+
+                if (AppState.profiles.length === 0) {
+                    console.log('🌱 Loading seeded profiles...');
+                    this.loadSeededProfiles();
+                }
+
+                console.log('✅ Storage initialized. Profiles:', AppState.profiles.length);
+            },
+
+            loadSeededProfiles() {
+                AppState.profiles = [
+                    {
+                        id: this.generateId(),
+                        name: 'Cinematic Cyberpunk',
+                        creativeIntent: 'High-contrast futuristic noir with neon-soaked atmospherics and moody volumetric lighting',
+                        medium: '3D render',
+                        aesthetic: 'cyberpunk, neo-noir',
+                        palette: 'high contrast neon pink and cyan with deep shadows',
+                        composition: 'dramatic diagonal, off-center subject',
+                        camera: 'wide angle lens with shallow depth of field',
+                        lighting: 'volumetric fog, harsh rim light, neon reflections',
+                        texture: 'glossy wet surfaces, holographic elements',
+                        exclusions: 'daylight, natural landscapes, warm colors',
+                        qualityTerms: 'cinematic lighting, ray tracing, 8k, ultra detailed',
+                        lockState: {
+                            medium: true,
+                            aesthetic: true,
+                            palette: true,
+                            composition: true,
+                            camera: true,
+                            lighting: true,
+                            texture: true,
+                            exclusions: true
+                        }
+                    },
+                    {
+                        id: this.generateId(),
+                        name: 'Vintage 35mm Film',
+                        creativeIntent: 'Warm nostalgic photography with authentic film characteristics and natural lighting',
+                        medium: 'photography',
+                        aesthetic: '1970s editorial, documentary style',
+                        palette: 'muted earth tones, warm ochre and olive',
+                        composition: 'rule of thirds, candid framing',
+                        camera: '35mm film camera, 50mm lens, shallow depth of field',
+                        lighting: 'soft golden hour, natural window light',
+                        texture: 'visible film grain, slight vignette, analog imperfections',
+                        exclusions: 'digital look, over-sharpened, HDR, artificial lighting',
+                        qualityTerms: 'Kodak Portra 400, professional photography, authentic film look',
+                        lockState: {
+                            medium: true,
+                            aesthetic: true,
+                            palette: true,
+                            composition: false,
+                            camera: true,
+                            lighting: true,
+                            texture: true,
+                            exclusions: true
+                        }
+                    }
+                ];
+                this.save();
+            },
+
+            save() {
+                if (!AppState.storageAvailable) {
+                    console.log('💾 Storage not available, keeping in memory only');
+                    return;
+                }
+
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(AppState.profiles));
+                    console.log('💾 Saved to storage. Profile count:', AppState.profiles.length);
+                } catch (e) {
+                    console.warn('⚠️ Save failed, running in memory mode:', e);
+                    AppState.storageAvailable = false;
+                }
+            },
+
+            generateId() {
+                if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                    return crypto.randomUUID();
+                }
+                return 'profile_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            },
+
+            createProfile(name = 'New Profile') {
+                console.log('➕ Creating new profile:', name);
+                
+                const profile = {
+                    id: this.generateId(),
+                    name: name,
+                    creativeIntent: '',
+                    medium: '',
+                    aesthetic: '',
+                    palette: '',
+                    composition: '',
+                    camera: '',
+                    lighting: '',
+                    texture: '',
+                    exclusions: '',
+                    qualityTerms: '',
+                    lockState: {
+                        medium: false,
+                        aesthetic: false,
+                        palette: false,
+                        composition: false,
+                        camera: false,
+                        lighting: false,
+                        texture: false,
+                        exclusions: false
+                    }
+                };
+                
+                AppState.profiles.push(profile);
+                this.save();
+                
+                console.log('✅ Profile created. Total profiles:', AppState.profiles.length);
+                return profile;
+            },
+
+            deleteProfile(id) {
+                console.log('🗑️ Deleting profile:', id);
+                AppState.profiles = AppState.profiles.filter(p => p.id !== id);
+                this.save();
+            },
+
+            getProfile(id) {
+                return AppState.profiles.find(p => p.id === id);
+            },
+
+            updateProfile(id, data) {
+                const profile = this.getProfile(id);
+                if (profile) {
+                    Object.assign(profile, data);
+                    this.save();
+                }
+            },
+
+            duplicateProfile(id) {
+                const original = this.getProfile(id);
+                if (original) {
+                    const duplicate = JSON.parse(JSON.stringify(original));
+                    duplicate.id = this.generateId();
+                    duplicate.name = original.name + ' (Copy)';
+                    AppState.profiles.push(duplicate);
+                    this.save();
+                    return duplicate;
+                }
+            },
+
+            exportProfile(id) {
+                const profile = this.getProfile(id);
+                if (profile) {
+                    const dataStr = JSON.stringify(profile, null, 2);
+                    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                    const exportFileDefaultName = profile.name.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.json';
+                    
+                    const linkElement = document.createElement('a');
+                    linkElement.setAttribute('href', dataUri);
+                    linkElement.setAttribute('download', exportFileDefaultName);
+                    linkElement.click();
+                }
+            },
+
+            importProfile(jsonData) {
+                try {
+                    const profile = JSON.parse(jsonData);
+                    profile.id = this.generateId();
+                    profile.name = profile.name + ' (Imported)';
+                    
+                    if (!profile.lockState) {
+                        profile.lockState = {
+                            medium: false,
+                            aesthetic: false,
+                            palette: false,
+                            composition: false,
+                            camera: false,
+                            lighting: false,
+                            texture: false,
+                            exclusions: false
+                        };
+                    }
+                    
+                    AppState.profiles.push(profile);
+                    this.save();
+                    return profile;
+                } catch (e) {
+                    throw new Error('Invalid JSON format');
+                }
+            }
+        };
+
+        const PromptCompiler = {
+            compile(profile, scene, model) {
+                const compiler = this.getCompilerForModel(model);
+                return compiler(profile, scene);
+            },
+
+            sanitize(value) {
+                return value ? value.trim() : '';
+            },
+
+            getCompilerForModel(model) {
+                const compilers = {
+                    dalle: this.compileDalle.bind(this),
+                    midjourney: this.compileMidjourney.bind(this),
+                    stable: this.compileStableDiffusion.bind(this)
+                };
+                return compilers[model] || compilers.dalle;
+            },
+
+            compileDalle(profile, scene) {
+                const parts = [];
+                
+                const subject = this.sanitize(scene.subject);
+                const action = this.sanitize(scene.action);
+                const environment = this.sanitize(scene.environment);
+                const medium = this.sanitize(profile.medium);
+                const aesthetic = this.sanitize(profile.aesthetic);
+                const palette = this.sanitize(profile.palette);
+                const composition = this.sanitize(profile.composition);
+                const camera = this.sanitize(profile.camera);
+                const lighting = this.sanitize(profile.lighting);
+                const texture = this.sanitize(profile.texture);
+                const quality = this.sanitize(profile.qualityTerms);
+                const exclusions = this.sanitize(profile.exclusions);
+
+                let opening = 'Create';
+                if (medium) opening += ` a ${medium} of`;
+                if (subject) opening += ` ${subject}`;
+                if (action) opening += ` ${action}`;
+                if (environment) opening += ` ${environment}`;
+                opening += '.';
+                parts.push(opening);
+
+                const styleElements = [];
+                if (aesthetic) styleElements.push(`The aesthetic is ${aesthetic}`);
+                if (palette) styleElements.push(`with a ${palette} color palette`);
+                if (styleElements.length > 0) {
+                    parts.push(styleElements.join(' ') + '.');
+                }
+
+                const compositionElements = [];
+                if (composition) compositionElements.push(`The composition is ${composition}`);
+                if (camera && !medium.toLowerCase().includes('painting')) {
+                    compositionElements.push(`shot with ${camera}`);
+                }
+                if (compositionElements.length > 0) {
+                    parts.push(compositionElements.join(', ') + '.');
+                }
+
+                const detailElements = [];
+                if (lighting) detailElements.push(lighting);
+                if (texture) detailElements.push(texture);
+                if (detailElements.length > 0) {
+                    parts.push(`The scene features ${detailElements.join(' and ')} details.`);
+                }
+
+                if (quality) parts.push(quality + '.');
+
+                if (exclusions) {
+                    parts.push(`Crucial constraints: Do not include ${exclusions}.`);
+                }
+
+                const prompt = parts.join(' ').replace(/\s+/g, ' ').trim();
+                return { positive: prompt, negative: '' };
+            },
+
+            compileMidjourney(profile, scene) {
+                const parts = [];
+                
+                const subject = this.sanitize(scene.subject);
+                const action = this.sanitize(scene.action);
+                const environment = this.sanitize(scene.environment);
+
+                if (subject) parts.push(subject);
+                if (action) parts.push(action);
+                if (environment) parts.push(environment);
+
+                const styleParts = [
+                    this.sanitize(profile.medium),
+                    this.sanitize(profile.aesthetic),
+                    this.sanitize(profile.palette),
+                    this.sanitize(profile.composition),
+                    this.sanitize(profile.camera),
+                    this.sanitize(profile.lighting),
+                    this.sanitize(profile.texture),
+                    this.sanitize(profile.qualityTerms)
+                ].filter(p => p);
+
+                parts.push(...styleParts);
+
+                let prompt = parts.join(', ');
+                
+                const exclusions = this.sanitize(profile.exclusions);
+                if (exclusions) {
+                    prompt += ` --no ${exclusions}`;
+                }
+                
+                prompt += ' --v 6.0 --style raw';
+
+                return { positive: prompt, negative: '' };
+            },
+
+            compileStableDiffusion(profile, scene) {
+                const positiveParts = ['(masterpiece, best quality:1.2)'];
+                
+                if (this.sanitize(profile.medium)) {
+                    positiveParts.push(this.sanitize(profile.medium));
+                }
+
+                const subjectParts = [
+                    this.sanitize(scene.subject),
+                    this.sanitize(scene.action),
+                    this.sanitize(scene.environment)
+                ].filter(p => p);
+
+                if (subjectParts.length > 0) {
+                    positiveParts.push(subjectParts.join(' '));
+                }
+
+                const styleParts = [
+                    this.sanitize(profile.aesthetic),
+                    this.sanitize(profile.palette),
+                    this.sanitize(profile.composition),
+                    this.sanitize(profile.camera),
+                    this.sanitize(profile.lighting),
+                    this.sanitize(profile.texture)
+                ].filter(p => p);
+
+                positiveParts.push(...styleParts);
+
+                const positive = positiveParts.join(', ');
+
+                const negativeParts = ['(worst quality, low quality:1.4)'];
+                const exclusions = this.sanitize(profile.exclusions);
+                if (exclusions) {
+                    negativeParts.push(exclusions);
+                }
+
+                const negative = negativeParts.join(', ');
+
+                return { positive, negative };
+            }
+        };
+
+        const UIController = {
+            init() {
+                console.log('🎨 Initializing UI...');
+                this.bindEvents();
+                this.populateProfileSelector();
+                this.selectModel(AppState.selectedModel);
+                
+                if (AppState.profiles.length > 0) {
+                    console.log('📂 Loading first profile...');
+                    this.loadProfile(AppState.profiles[0].id);
+                } else {
+                    console.warn('⚠️ No profiles available!');
+                }
+                
+                console.log('✅ UI initialized');
+            },
+
+            bindEvents() {
+                console.log('🔗 Binding event listeners...');
+                
+                const fields = ['profileName', 'creativeIntent', 'medium', 'aesthetic', 'palette', 
+                               'composition', 'camera', 'lighting', 'texture', 'exclusions', 'qualityTerms',
+                               'subject', 'action', 'environment'];
+                
+                fields.forEach(field => {
+                    const element = document.getElementById(field);
+                    if (element) {
+                        element.addEventListener('input', () => this.handleFieldChange(field));
+                    } else {
+                        console.warn(`⚠️ Field not found: ${field}`);
+                    }
+                });
+
+                const profileSelect = document.getElementById('profileSelect');
+                if (profileSelect) {
+                    profileSelect.addEventListener('change', (e) => {
+                        console.log('📝 Profile selection changed:', e.target.value);
+                        if (e.target.value) {
+                            this.loadProfile(e.target.value);
+                        }
+                    });
+                }
+
+                const btnNew = document.getElementById('btnNew');
+                if (btnNew) {
+                    btnNew.addEventListener('click', (e) => {
+                        console.log('🆕 New button clicked');
+                        e.preventDefault();
+                        AppController.createNewProfile();
+                    });
+                }
+
+                const btnDuplicate = document.getElementById('btnDuplicate');
+                if (btnDuplicate) {
+                    btnDuplicate.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        AppController.duplicateProfile();
+                    });
+                }
+
+                const btnDelete = document.getElementById('btnDelete');
+                if (btnDelete) {
+                    btnDelete.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        AppController.deleteProfile();
+                    });
+                }
+
+                const btnExport = document.getElementById('btnExport');
+                if (btnExport) {
+                    btnExport.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        AppController.exportProfile();
+                    });
+                }
+
+                const btnImportTrigger = document.getElementById('btnImportTrigger');
+                if (btnImportTrigger) {
+                    btnImportTrigger.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        document.getElementById('importFile').click();
+                    });
+                }
+
+                const importFile = document.getElementById('importFile');
+                if (importFile) {
+                    importFile.addEventListener('change', (e) => AppController.importProfile(e));
+                }
+
+                const btnGenerate = document.getElementById('btnGenerate');
+                if (btnGenerate) {
+                    btnGenerate.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        AppController.generatePrompt();
+                    });
+                }
+
+                const btnCopy = document.getElementById('btnCopy');
+                if (btnCopy) {
+                    btnCopy.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        AppController.copyToClipboard();
+                    });
+                }
+
+                document.querySelectorAll('.lock-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const field = e.target.dataset.field;
+                        AppController.toggleLock(field);
+                    });
+                });
+
+                document.querySelectorAll('.model-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const model = e.currentTarget.dataset.model;
+                        AppController.selectModel(model);
+                    });
+                });
+
+                const styleHeader = document.getElementById('styleHeader');
+                if (styleHeader) {
+                    styleHeader.addEventListener('click', () => {
+                        AppController.toggleSection('style');
+                    });
+                }
+
+                const sceneHeader = document.getElementById('sceneHeader');
+                if (sceneHeader) {
+                    sceneHeader.addEventListener('click', () => {
+                        AppController.toggleSection('scene');
+                    });
+                }
+
+                console.log('✅ Events bound');
+            },
+
+            handleFieldChange(field) {
+                const value = document.getElementById(field).value;
+                
+                if (field === 'profileName' || field === 'creativeIntent' || 
+                    ['medium', 'aesthetic', 'palette', 'composition', 'camera', 
+                     'lighting', 'texture', 'exclusions', 'qualityTerms'].includes(field)) {
+                    
+                    if (AppState.activeProfileId) {
+                        const profile = StorageService.getProfile(AppState.activeProfileId);
+                        if (profile) {
+                            if (field === 'profileName') {
+                                profile.name = value;
+                            } else if (field === 'creativeIntent') {
+                                profile.creativeIntent = value;
+                            } else {
+                                profile[field] = value;
+                            }
+                            StorageService.save();
+                            if (field === 'profileName') {
+                                this.populateProfileSelector();
+                            }
+                        }
+                    }
+                } else {
+                    AppState.scene[field] = value;
+                }
+            },
+
+            populateProfileSelector() {
+                console.log('📋 Populating profile selector. Profiles:', AppState.profiles.length);
+                
+                const select = document.getElementById('profileSelect');
+                if (!select) {
+                    console.error('❌ Profile select element not found!');
+                    return;
+                }
+                
+                select.innerHTML = '<option value="">Select Profile...</option>';
+                
+                AppState.profiles.forEach(profile => {
+                    const option = document.createElement('option');
+                    option.value = profile.id;
+                    option.textContent = profile.name;
+                    select.appendChild(option);
+                });
+
+                if (AppState.activeProfileId) {
+                    select.value = AppState.activeProfileId;
+                } else if (AppState.profiles.length > 0) {
+                    select.value = AppState.profiles[0].id;
+                }
+                
+                console.log('✅ Profile selector populated. Selected:', select.value);
+            },
+
+            loadProfile(profileId) {
+                console.log('📂 Loading profile:', profileId);
+                
+                const profile = StorageService.getProfile(profileId);
+                if (!profile) {
+                    console.error('❌ Profile not found:', profileId);
+                    return;
+                }
+
+                AppState.activeProfileId = profileId;
+                
+                document.getElementById('profileName').value = profile.name || '';
+                document.getElementById('creativeIntent').value = profile.creativeIntent || '';
+                document.getElementById('medium').value = profile.medium || '';
+                document.getElementById('aesthetic').value = profile.aesthetic || '';
+                document.getElementById('palette').value = profile.palette || '';
+                document.getElementById('composition').value = profile.composition || '';
+                document.getElementById('camera').value = profile.camera || '';
+                document.getElementById('lighting').value = profile.lighting || '';
+                document.getElementById('texture').value = profile.texture || '';
+                document.getElementById('exclusions').value = profile.exclusions || '';
+                document.getElementById('qualityTerms').value = profile.qualityTerms || '';
+
+                this.updateLockStates(profile.lockState);
+                
+                document.getElementById('profileSelect').value = profileId;
+                
+                console.log('✅ Profile loaded:', profile.name);
+            },
+
+            updateLockStates(lockState) {
+                const fields = Object.keys(lockState);
+                fields.forEach(field => {
+                    const toggle = document.querySelector(`[data-field="${field}"]`);
+                    if (toggle) {
+                        const isLocked = lockState[field];
+                        toggle.textContent = isLocked ? '🔒 Locked' : '🔓 Unlocked';
+                        toggle.classList.toggle('locked', isLocked);
+                    }
+                });
+
+                const anyLocked = Object.values(lockState).some(v => v);
+                const globalLock = document.getElementById('styleGlobalLock');
+                globalLock.textContent = anyLocked ? '🔒' : '🔓';
+                globalLock.classList.toggle('locked', anyLocked);
+            },
+
+            selectModel(model) {
+                AppState.selectedModel = model;
+                document.querySelectorAll('.model-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.model === model);
+                });
+
+                const negativeSection = document.getElementById('negativeSection');
+                negativeSection.style.display = model === 'stable' ? 'block' : 'none';
+            },
+
+            showToast(message, type = 'success') {
+                console.log(`🔔 Toast: ${message} (${type})`);
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = `toast ${type}`;
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            },
+
+            toggleSection(section) {
+                const content = document.getElementById(section + 'Content');
+                const header = document.getElementById(section + 'Header');
+                const icon = header.querySelector('.collapse-icon');
+                
+                content.classList.toggle('collapsed');
+                icon.classList.toggle('open');
+            }
+        };
+
+        const AppController = {
+            init() {
+                console.log('🎯 AppController initializing...');
+                StorageService.init();
+                UIController.init();
+                console.log('✅ AppController initialized');
+            },
+
+            createNewProfile() {
+                console.log('🆕 Creating new profile...');
+                const profile = StorageService.createProfile();
+                console.log('✅ Profile created:', profile);
+                console.log('📊 Total profiles now:', AppState.profiles.length);
+                
+                UIController.populateProfileSelector();
+                UIController.loadProfile(profile.id);
+                UIController.showToast('New profile created');
+            },
+
+            duplicateProfile() {
+                if (!AppState.activeProfileId) {
+                    UIController.showToast('Please select a profile first', 'error');
+                    return;
+                }
+                
+                const duplicate = StorageService.duplicateProfile(AppState.activeProfileId);
+                UIController.populateProfileSelector();
+                UIController.loadProfile(duplicate.id);
+                UIController.showToast('Profile duplicated');
+            },
+
+            deleteProfile() {
+                if (!AppState.activeProfileId) {
+                    UIController.showToast('Please select a profile first', 'error');
+                    return;
+                }
+
+                if (!confirm('Are you sure you want to delete this profile?')) {
+                    return;
+                }
+
+                StorageService.deleteProfile(AppState.activeProfileId);
+                AppState.activeProfileId = null;
+                UIController.populateProfileSelector();
+                
+                if (AppState.profiles.length > 0) {
+                    UIController.loadProfile(AppState.profiles[0].id);
+                }
+                
+                UIController.showToast('Profile deleted');
+            },
+
+            exportProfile() {
+                if (!AppState.activeProfileId) {
+                    UIController.showToast('Please select a profile first', 'error');
+                    return;
+                }
+                
+                StorageService.exportProfile(AppState.activeProfileId);
+                UIController.showToast('Profile exported');
+            },
+
+            importProfile(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const profile = StorageService.importProfile(e.target.result);
+                        UIController.populateProfileSelector();
+                        UIController.loadProfile(profile.id);
+                        UIController.showToast('Profile imported successfully');
+                    } catch (error) {
+                        UIController.showToast('Failed to import profile: ' + error.message, 'error');
+                    }
+                };
+                reader.readAsText(file);
+                
+                event.target.value = '';
+            },
+
+            toggleLock(field) {
+                if (!AppState.activeProfileId) {
+                    UIController.showToast('Please select a profile first', 'error');
+                    return;
+                }
+
+                const profile = StorageService.getProfile(AppState.activeProfileId);
+                if (!profile) return;
+
+                profile.lockState[field] = !profile.lockState[field];
+                StorageService.save();
+                UIController.updateLockStates(profile.lockState);
+            },
+
+            selectModel(model) {
+                UIController.selectModel(model);
+            },
+
+            generatePrompt() {
+                if (!AppState.activeProfileId) {
+                    UIController.showToast('Please select a profile first', 'error');
+                    return;
+                }
+
+                const profile = StorageService.getProfile(AppState.activeProfileId);
+                if (!profile) return;
+
+                AppState.scene.subject = document.getElementById('subject').value;
+                AppState.scene.action = document.getElementById('action').value;
+                AppState.scene.environment = document.getElementById('environment').value;
+
+                const result = PromptCompiler.compile(profile, AppState.scene, AppState.selectedModel);
+                
+                AppState.generatedPrompt = result.positive;
+                AppState.generatedNegative = result.negative;
+
+                document.getElementById('outputPrompt').textContent = result.positive;
+                document.getElementById('charCount').textContent = result.positive.length + ' chars';
+
+                if (result.negative) {
+                    document.getElementById('negativePrompt').textContent = result.negative;
+                    document.getElementById('negativeCharCount').textContent = result.negative.length + ' chars';
+                }
+
+                UIController.showToast('Prompt generated successfully');
+            },
+
+            copyToClipboard() {
+                let textToCopy = AppState.generatedPrompt;
+                
+                if (AppState.selectedModel === 'stable' && AppState.generatedNegative) {
+                    textToCopy += '\n\nNegative Prompt:\n' + AppState.generatedNegative;
+                }
+
+                if (!textToCopy) {
+                    UIController.showToast('Generate a prompt first', 'error');
+                    return;
+                }
+
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    UIController.showToast('Copied to clipboard!');
+                }).catch(() => {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = textToCopy;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    UIController.showToast('Copied to clipboard!');
+                });
+            },
+
+            toggleSection(section) {
+                UIController.toggleSection(section);
+            }
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('📄 DOM loaded, starting app...');
+                AppController.init();
+            });
+        } else {
+            console.log('📄 DOM already loaded, starting app...');
+            AppController.init();
+        }
+    </script>
+</body>
+</html>
